@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">midterm</string>
+    <string name="action_settings">Settings</string>
+    <string name="tvMainInitText"></string>
+    <string name="title_activity_username">UsernameActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_movies">MoviesActivity</string>
+    <string name="title_activity_movie">MovieActivity</string>
+    <string name="title_activity_movie_web">MovieWebActivity</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+
+</resources>
