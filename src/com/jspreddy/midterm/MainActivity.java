@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 import com.jspreddy.midterm.helpers.Config;
 import com.jspreddy.midterm.helpers.Constants;
 import com.jspreddy.midterm.helpers.ErrorObject;
+import com.jspreddy.midterm.helpers.FavApiObject;
 import com.jspreddy.midterm.helpers.FavUtil;
 
 import android.os.AsyncTask;
@@ -124,10 +125,10 @@ public class MainActivity extends Activity {
 	}
 
 	
-	public class AsyncClearFavs extends AsyncTask<Void, Void, ErrorObject>{
+	public class AsyncClearFavs extends AsyncTask<Void, Void, FavApiObject>{
 
 		@Override
-		protected ErrorObject doInBackground(Void... params) {
+		protected FavApiObject doInBackground(Void... params) {
 			// TODO Auto-generated method stub
 			// Create a new HttpClient and Post Header
 		    HttpClient httpclient = new DefaultHttpClient();
@@ -144,7 +145,7 @@ public class MainActivity extends Activity {
 		        HttpResponse response = httpclient.execute(httppost);
 		        InputStream in = response.getEntity().getContent();
 		        
-		        return FavUtil.FavSAXParser.getError(in);
+		        return FavUtil.FavSAXParser.getFavApiObject(in);
 		        
 		    } catch (ClientProtocolException e) {
 		        // TODO Auto-generated catch block
@@ -157,10 +158,10 @@ public class MainActivity extends Activity {
 			return null;
 		}
 		
-		protected void onPostExecute(ErrorObject result) {
+		protected void onPostExecute(FavApiObject result) {
 			if(result != null){
 				Log.d("DEBUG", result.toString());
-				Toast.makeText(context, result.getMessage(), Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, result.getError().getMessage(), Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
