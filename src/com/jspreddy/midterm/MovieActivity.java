@@ -7,14 +7,30 @@ package com.jspreddy.midterm;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.SAXException;
 
+import com.jspreddy.midterm.helpers.Config;
 import com.jspreddy.midterm.helpers.Constants;
+import com.jspreddy.midterm.helpers.FavApiObject;
+import com.jspreddy.midterm.helpers.FavUtil;
 import com.jspreddy.midterm.helpers.ImageLoad;
 import com.jspreddy.midterm.helpers.RottenMovieObject;
 import com.jspreddy.midterm.helpers.RottenUtil;
@@ -25,6 +41,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -38,10 +55,11 @@ import android.widget.Toast;
 
 public class MovieActivity extends Activity {
 
-	int id;
+	int mid;
 	ProgressDialog pd;
 	RottenMovieObject movie;
 	Context context;
+	String uid;
 	
 	TextView tvTitle;
 	TextView tvReleaseDate;
@@ -58,6 +76,7 @@ public class MovieActivity extends Activity {
 	ImageView ivBack;
 	ImageView ivWeb;
 	ImageView ivStar;
+	Boolean isFav;
 	
 	
 	@Override
@@ -84,8 +103,19 @@ public class MovieActivity extends Activity {
 		this.ivMain.setScaleType(ScaleType.FIT_CENTER);
 		this.ivAud.setScaleType(ScaleType.FIT_CENTER);
 		this.ivCrit.setScaleType(ScaleType.FIT_CENTER);
-		
+		isFav=false;
 		context=this.getApplicationContext();
+		
+		SharedPreferences sharedPref = context.getSharedPreferences(Constants.sharedPrefFile,Context.MODE_PRIVATE);
+		String defaultValue = "";
+		String uname_shared_pref = sharedPref.getString(Constants.uname_key, defaultValue);
+		if(uname_shared_pref == "")
+		{
+			Intent username_activity = new Intent(MovieActivity.this, UsernameActivity.class);
+			startActivity(username_activity);
+			finish();
+		}
+		uid=Config.getUid(uname_shared_pref);
 		
 		this.ivBack.setOnClickListener(new View.OnClickListener() {
 			
@@ -112,13 +142,21 @@ public class MovieActivity extends Activity {
 			}
 		});
 		
-		if (getIntent().getExtras() != null) {
-			id = getIntent().getExtras().getInt("id");
-		}
-		else{id=0;}
-		Log.d("DEBUG","movie id: "+id);
-		new AsyncGetMovie().execute("http://api.rottentomatoes.com/api/public/v1.0/movies/"+id+".json?apikey="+Constants.API_KEY);
+		this.ivStar.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				new AsyncSwitchFav().execute(!isFav);
+			}
+		});
 		
+		if (getIntent().getExtras() != null) {
+			mid = getIntent().getExtras().getInt("id");
+		}
+		else{mid=0;}
+		Log.d("DEBUG","movie id: "+mid);
+		new AsyncGetMovie().execute("http://api.rottentomatoes.com/api/public/v1.0/movies/"+mid+".json?apikey="+Constants.API_KEY);
+		new AsyncGetIsFav().execute();
 		
 	}
 
@@ -283,4 +321,125 @@ public class MovieActivity extends Activity {
 		return quo+"hr. "+rem+"min.";
 	}
 	
+	
+	public class AsyncGetIsFav extends AsyncTask<Void,Void,FavApiObject>{
+
+		@Override
+		protected FavApiObject doInBackground(Void... arg0) {
+			HttpClient httpclient = new DefaultHttpClient();
+		    HttpPost httppost = new HttpPost("http://cci-webdev.uncc.edu/~mshehab/api-rest/favorites/isFavorite.php");
+
+		    try {
+		        // Add your data
+		        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		        nameValuePairs.add(new BasicNameValuePair("uid", uid));
+		        nameValuePairs.add(new BasicNameValuePair("mid", mid+""));
+		        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+		        // Execute HTTP Post Request
+		        HttpResponse response = httpclient.execute(httppost);
+		        InputStream in = response.getEntity().getContent();
+		        
+		        return FavUtil.FavSAXParser.getFavApiObject(in);
+		        
+		    } catch (ClientProtocolException e) {
+		        // TODO Auto-generated catch block
+		    } catch (IOException e) {
+		        // TODO Auto-generated catch block
+		    } catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(FavApiObject result) {
+			super.onPostExecute(result);
+			
+			if(result.getError().getId().equals("0")){
+				if(result.getFavorites().get(0).getId().equals(mid+"")){
+					isFav = Boolean.parseBoolean(result.getFavorites().get(0).getIsFav());
+					if(isFav){
+						ivStar.setImageResource(R.drawable.ic_action_star_1);
+					}
+					else{
+						ivStar.setImageResource(R.drawable.ic_action_star_0);
+					}
+				}
+			}
+			
+		}
+		
+	}
+	
+	public class AsyncSwitchFav extends AsyncTask<Boolean,Void,FavApiObject>{
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+//			if(pd==null){
+//				pd=new ProgressDialog(MovieActivity.this);
+//			}
+//			if(!pd.isShowing()){
+//				pd.setCancelable(false);
+//				pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//				pd.setMessage("Loading Movies");
+//				pd.show();
+//			}
+		}
+		
+		@Override
+		protected FavApiObject doInBackground(Boolean... params) {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost;
+			if(params[0]){
+				httppost = new HttpPost("http://cci-webdev.uncc.edu/~mshehab/api-rest/favorites/addToFavorites.php");
+			}
+			else{
+				httppost = new HttpPost("http://cci-webdev.uncc.edu/~mshehab/api-rest/favorites/deleteFavorite.php");
+			}
+
+		    try {
+		        // Add your data
+		        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		        nameValuePairs.add(new BasicNameValuePair("uid", uid));
+		        nameValuePairs.add(new BasicNameValuePair("mid", mid+""));
+		        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+		        // Execute HTTP Post Request
+		        HttpResponse response = httpclient.execute(httppost);
+		        InputStream in = response.getEntity().getContent();
+		        
+		        return FavUtil.FavSAXParser.getFavApiObject(in);
+		        
+		    } catch (ClientProtocolException e) {
+		        // TODO Auto-generated catch block
+		    } catch (IOException e) {
+		        // TODO Auto-generated catch block
+		    } catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(FavApiObject result) {
+			super.onPostExecute(result);
+//			pd.dismiss();
+			if(result.getError().getId().equals("0")){
+				Toast.makeText(context, result.getError().getMessage(), Toast.LENGTH_SHORT).show();
+				isFav=!isFav;
+				if(isFav){
+					ivStar.setImageResource(R.drawable.ic_action_star_1);
+				}
+				else{
+					ivStar.setImageResource(R.drawable.ic_action_star_0);
+				}
+			}
+			
+		}
+		
+	}
 }

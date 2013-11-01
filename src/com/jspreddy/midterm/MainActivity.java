@@ -127,7 +127,6 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected FavApiObject doInBackground(Void... params) {
-			// TODO Auto-generated method stub
 			// Create a new HttpClient and Post Header
 		    HttpClient httpclient = new DefaultHttpClient();
 		    HttpPost httppost = new HttpPost("http://cci-webdev.uncc.edu/~mshehab/api-rest/favorites/deleteAllFavorites.php");
