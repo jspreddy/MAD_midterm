@@ -30,6 +30,7 @@ import com.jspreddy.midterm.helpers.Config;
 import com.jspreddy.midterm.helpers.Constants;
 import com.jspreddy.midterm.helpers.FavApiObject;
 import com.jspreddy.midterm.helpers.FavUtil;
+import com.jspreddy.midterm.helpers.FavoriteObject;
 import com.jspreddy.midterm.helpers.RottenMovieObject;
 import com.jspreddy.midterm.helpers.RottenUtil;
 
@@ -66,10 +67,10 @@ public class MoviesActivity extends Activity {
 	ListView lvMovies;
 	ProgressDialog pd;
 	
-	String url_box_office="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
-	String url_in_theaters="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
-	String url_opening="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
-	String url_upcoming="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
+	String[] url_box_office={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
+	String[] url_in_theaters={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
+	String[] url_opening={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
+	String[] url_upcoming={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
 	
 	LruCache<String, Bitmap> mMemoryCache;
 	
@@ -182,29 +183,40 @@ public class MoviesActivity extends Activity {
 		}
 		
 		protected void onPostExecute(FavApiObject result) {
-			pd.dismiss();
-			if(result != null){
-				Toast.makeText(context, result.getError().getMessage(), Toast.LENGTH_SHORT).show();
+			if(result != null ){
+				ArrayList<FavoriteObject> list = result.getFavorites();
+				String[] urls = new String[list.size()];
+				for(int i=0; i<list.size(); i++){
+					urls[i]="http://api.rottentomatoes.com/api/public/v1.0/movies/"+list.get(i).getId()+".json?apikey=r77k8ra37t6q4hgk9974qm4j";
+				}
+				new AsyncGetMovies().execute(urls);
+			}
+			else{
+				Toast.makeText(context, "No movies to display", Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
 	
-	public class AsyncGetMovies extends AsyncTask<String, Void, ArrayList<RottenMovieObject>>{
+	public class AsyncGetMovies extends AsyncTask<String[], Void, ArrayList<RottenMovieObject>>{
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pd=new ProgressDialog(MoviesActivity.this);
-			pd.setCancelable(false);
-			pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			pd.setMessage("Loading Movies");
-			pd.show();
+			if(pd==null){
+				pd=new ProgressDialog(MoviesActivity.this);
+			}
+			if(!pd.isShowing()){
+				pd.setCancelable(false);
+				pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+				pd.setMessage("Loading Movies");
+				pd.show();
+			}
 		}
 		
 		@Override
-		protected ArrayList<RottenMovieObject> doInBackground(String... arg) {
+		protected ArrayList<RottenMovieObject> doInBackground(String[]... arg) {
 			try {
-				URL url = new URL(arg[0]);
+				URL url = new URL(arg[0][0]);
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 				con.setRequestMethod("GET");
 				con.connect();
@@ -239,8 +251,13 @@ public class MoviesActivity extends Activity {
 		protected void onPostExecute(ArrayList<RottenMovieObject> result) {
 			super.onPostExecute(result);
 			pd.dismiss();
-			MoviesAdapter ma = new MoviesAdapter(MoviesActivity.this, result);
-			lvMovies.setAdapter(ma);
+			if(result!=null && result.size() != 0){
+				MoviesAdapter ma = new MoviesAdapter(MoviesActivity.this, result);
+				lvMovies.setAdapter(ma);
+			}
+			else{
+				Toast.makeText(context, "No Movies to display", Toast.LENGTH_SHORT).show();
+			}
 		}
 
 	}
@@ -257,48 +274,69 @@ public class MoviesActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			View row = convertView;
+			MyViewHolder holder = null;
+			if(convertView == null){
+				LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				row = inflater.inflate(R.layout.movies_list_item, parent, false);
+				holder = new MyViewHolder(row);
+				row.setTag(holder);
+			}
+			else{
+				holder = (MyViewHolder) row.getTag();
+			}
 			
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View row = inflater.inflate(R.layout.movies_list_item, parent, false);
-			
-			ImageView ivThumbnail = (ImageView) row.findViewById(R.id.ivThumbnail);
-			TextView tvTitle = (TextView) row.findViewById(R.id.tvTitle);
-			TextView tvYear = (TextView) row.findViewById(R.id.tvYear);
-			TextView tvMpaa = (TextView) row.findViewById(R.id.tvMpaa);
-			ImageView ivCritRating = (ImageView) row.findViewById(R.id.ivCritRating);
-			ImageView ivAudRating = (ImageView) row.findViewById(R.id.ivAudRating);
-			ivCritRating.setScaleType(ScaleType.CENTER_INSIDE);
-			ivAudRating.setScaleType(ScaleType.CENTER_INSIDE);
-			ivThumbnail.setScaleType(ScaleType.CENTER_INSIDE);
+			holder.ivCritRating.setScaleType(ScaleType.FIT_CENTER);
+			holder.ivAudRating.setScaleType(ScaleType.FIT_CENTER);
+			holder.ivThumbnail.setScaleType(ScaleType.FIT_CENTER);
 			
 			RottenMovieObject item = this.moviesList.get(position);
-			tvTitle.setText(item.getTitle());
-			tvYear.setText(item.getYear()+"");
-			tvMpaa.setText(item.getMpaa());
+			holder.tvTitle.setText(item.getTitle());
+			holder.tvYear.setText(item.getYear()+"");
+			holder.tvMpaa.setText(item.getMpaa());
 			
-			new AsyncDownloadImage().execute(new ImageLoad(item.getImg_profile(), ivThumbnail));
+			holder.ivThumbnail.setImageResource(R.drawable.poster_not_found);
+			new AsyncDownloadImage().execute(new ImageLoad(item.getImg_profile(), holder.ivThumbnail));
 			
 			if(item.getCritics_rating().equals("Fresh")){
-				ivCritRating.setImageResource(R.drawable.fresh);
+				holder.ivCritRating.setImageResource(R.drawable.fresh);
 			}
 			else if(item.getCritics_rating().equals("Certified Fresh")){
-				ivCritRating.setImageResource(R.drawable.certified_fresh);
+				holder.ivCritRating.setImageResource(R.drawable.certified_fresh);
 			}
 			else if(item.getCritics_rating().equals("Rotten")){
-				ivCritRating.setImageResource(R.drawable.rotten);
+				holder.ivCritRating.setImageResource(R.drawable.rotten);
 			}
 			
 			if(item.getAudience_rating().equals("Upright")){
-				ivAudRating.setImageResource(R.drawable.upright);
+				holder.ivAudRating.setImageResource(R.drawable.upright);
 			}
 			else if(item.getAudience_rating().equals("Spilled")){
-				ivAudRating.setImageResource(R.drawable.spilled);
+				holder.ivAudRating.setImageResource(R.drawable.spilled);
 			}
 			
 			return row;
 		}
 		
 		
+	}
+	
+	public class MyViewHolder{
+		public ImageView ivThumbnail;
+		public TextView tvTitle;
+		public TextView tvYear;
+		public TextView tvMpaa;
+		public ImageView ivCritRating;
+		public ImageView ivAudRating;
+		
+		MyViewHolder(View row){
+			ivThumbnail = (ImageView) row.findViewById(R.id.ivThumbnail);
+			tvTitle = (TextView) row.findViewById(R.id.tvTitle);
+			tvYear = (TextView) row.findViewById(R.id.tvYear);
+			tvMpaa = (TextView) row.findViewById(R.id.tvMpaa);
+			ivCritRating = (ImageView) row.findViewById(R.id.ivCritRating);
+			ivAudRating = (ImageView) row.findViewById(R.id.ivAudRating);
+		}
 	}
 	
 	class ImageLoad{
