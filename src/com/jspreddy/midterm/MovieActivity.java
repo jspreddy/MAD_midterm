@@ -1,3 +1,8 @@
+/**
+ * Midterm
+ * Filename: MovieActivity.java
+ * Sai Phaninder Reddy Jonnala
+ */
 package com.jspreddy.midterm;
 
 import android.os.Bundle;

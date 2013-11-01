@@ -1,3 +1,8 @@
+/**
+ * Midterm
+ * Filename: RottenMovieObject.java
+ * Sai Phaninder Reddy Jonnala
+ */
 package com.jspreddy.midterm.helpers;
 
 public class RottenMovieObject {

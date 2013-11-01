@@ -1,3 +1,8 @@
+/**
+ * Midterm
+ * Filename: MoviesActivity.java
+ * Sai Phaninder Reddy Jonnala
+ */
 package com.jspreddy.midterm;
 
 import java.io.BufferedReader;

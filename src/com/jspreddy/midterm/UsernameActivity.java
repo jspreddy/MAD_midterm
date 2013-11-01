@@ -1,3 +1,8 @@
+/**
+ * Midterm
+ * Filename: UsernameActivity.java
+ * Sai Phaninder Reddy Jonnala
+ */
 package com.jspreddy.midterm;
 
 import com.jspreddy.midterm.helpers.Constants;
