@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -48,6 +49,10 @@ public class MoviesActivity extends Activity {
 	ListView lvMovies;
 	ProgressDialog pd;
 	
+	String url_box_office="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
+	String url_in_theaters="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
+	String url_opening="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
+	String url_upcoming="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +86,16 @@ public class MoviesActivity extends Activity {
 			new AsyncGetAllFavs().execute();
 			break;
 		case 1:
-			new AsyncGetBOMovies().execute();
+			new AsyncGetMovies().execute(url_box_office);
 			break;
 		case 2:
+			new AsyncGetMovies().execute(url_in_theaters);
 			break;
 		case 3:
+			new AsyncGetMovies().execute(url_opening);
 			break;
 		case 4:
+			new AsyncGetMovies().execute(url_upcoming);
 			break;
 		}
 		
@@ -153,7 +161,7 @@ public class MoviesActivity extends Activity {
 		}
 	}
 	
-	public class AsyncGetBOMovies extends AsyncTask<Void, Void, ArrayList<RottenMovieObject>>{
+	public class AsyncGetMovies extends AsyncTask<String, Void, ArrayList<RottenMovieObject>>{
 
 		@Override
 		protected void onPreExecute() {
@@ -166,9 +174,9 @@ public class MoviesActivity extends Activity {
 		}
 		
 		@Override
-		protected ArrayList<RottenMovieObject> doInBackground(Void... arg0) {
+		protected ArrayList<RottenMovieObject> doInBackground(String... arg) {
 			try {
-				URL url = new URL("http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50");
+				URL url = new URL(arg[0]);
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 				con.setRequestMethod("GET");
 				con.connect();
@@ -206,5 +214,6 @@ public class MoviesActivity extends Activity {
 		}
 
 	}
+
 	
 }

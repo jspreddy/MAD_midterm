@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 public class RottenUtil {
 	static public class MoviesJSONParser{
+		
 		public static ArrayList<RottenMovieObject> parseMovies(String in) throws JSONException{
 			ArrayList<RottenMovieObject> movieList = new ArrayList<RottenMovieObject>();
 			
@@ -18,27 +19,141 @@ public class RottenUtil {
 				JSONObject movieJSONObject = movieJSONArray.getJSONObject(i);
 				RottenMovieObject movieObj =new RottenMovieObject();
 				
-				movieObj.setId(movieJSONObject.getString("id"));
-				movieObj.setTitle(movieJSONObject.getString("title"));
-				movieObj.setYear(movieJSONObject.getInt("year"));
-				movieObj.setMpaa(movieJSONObject.getString("mpaa_rating"));
-				movieObj.setRuntime(movieJSONObject.getInt("runtime"));
+				if(!movieJSONObject.isNull("id")){
+					try {
+						movieObj.setId(movieJSONObject.getString("id"));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(!movieJSONObject.isNull("title")){
+					try {
+						movieObj.setTitle(movieJSONObject.getString("title"));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				
-				movieObj.setRelease_date(movieJSONObject.getJSONObject("release_dates").getString("theater"));
+				if(!movieJSONObject.isNull("year")){
+					try {
+						movieObj.setYear(movieJSONObject.getInt("year"));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				
-				movieObj.setCritics_rating(movieJSONObject.getJSONObject("ratings").getString("critics_rating"));
-				movieObj.setCritics_score(movieJSONObject.getJSONObject("ratings").getInt("critics_score"));
-				movieObj.setAudience_rating(movieJSONObject.getJSONObject("ratings").getString("audience_rating"));
-				movieObj.setAudience_score(movieJSONObject.getJSONObject("ratings").getInt("audience_score"));
+				if(!movieJSONObject.isNull("mpaa_rating")){
+					try {
+						movieObj.setMpaa(movieJSONObject.getString("mpaa_rating"));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				
-				//movieObj.setSynopsis(movieJSONObject.getString("synopsis"));
+				if(!movieJSONObject.isNull("runtime")){
+					try{
+						movieObj.setRuntime(movieJSONObject.getInt("runtime"));
+					}
+					catch(JSONException e){
+						
+					}
+				}
 				
-				movieObj.setImg_thumbnail(movieJSONObject.getJSONObject("posters").getString("thumbnail"));
-				movieObj.setImg_profile(movieJSONObject.getJSONObject("posters").getString("profile"));
-				movieObj.setImg_detailed(movieJSONObject.getJSONObject("posters").getString("detailed"));
-				movieObj.setImg_original(movieJSONObject.getJSONObject("posters").getString("original"));
+				if(!movieJSONObject.isNull("release_dates")){
+					try {
+						if(!movieJSONObject.getJSONObject("release_dates").isNull("theater") ){
+							movieObj.setRelease_date(movieJSONObject.getJSONObject("release_dates").getString("theater"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				
-				movieObj.setLink_alternate(movieJSONObject.getJSONObject("links").getString("alternate"));
+				if(!movieJSONObject.isNull("ratings")){
+					try {
+						if(!movieJSONObject.getJSONObject("ratings").isNull("critics_rating")){
+							movieObj.setCritics_rating(movieJSONObject.getJSONObject("ratings").getString("critics_rating"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						if(!movieJSONObject.getJSONObject("ratings").isNull("critics_score")){
+							movieObj.setCritics_score(movieJSONObject.getJSONObject("ratings").getInt("critics_score"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						if(!movieJSONObject.getJSONObject("ratings").isNull("audience_rating")){
+							movieObj.setAudience_rating(movieJSONObject.getJSONObject("ratings").getString("audience_rating"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						if(!movieJSONObject.getJSONObject("ratings").isNull("audience_score")){
+							movieObj.setAudience_score(movieJSONObject.getJSONObject("ratings").getInt("audience_score"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				if(!movieJSONObject.isNull("posters")){
+					try {
+						if(!movieJSONObject.getJSONObject("posters").isNull("thumbnail")){
+							movieObj.setImg_thumbnail(movieJSONObject.getJSONObject("posters").getString("thumbnail"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						if(!movieJSONObject.getJSONObject("posters").isNull("profile")){
+							movieObj.setImg_profile(movieJSONObject.getJSONObject("posters").getString("profile"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						if(!movieJSONObject.getJSONObject("posters").isNull("detailed")){	
+							movieObj.setImg_detailed(movieJSONObject.getJSONObject("posters").getString("detailed"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						if(!movieJSONObject.getJSONObject("posters").isNull("original")){
+							movieObj.setImg_original(movieJSONObject.getJSONObject("posters").getString("original"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				if(!movieJSONObject.isNull("links")){
+					try {
+						if(!movieJSONObject.getJSONObject("links").isNull("alternate")){
+							movieObj.setLink_alternate(movieJSONObject.getJSONObject("links").getString("alternate"));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				
 				movieList.add(movieObj);
 			}
