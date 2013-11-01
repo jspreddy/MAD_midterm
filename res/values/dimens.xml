@@ -7,6 +7,8 @@
     <dimen name="movieItemHorizontalPadding">5dp</dimen>
     <dimen name="movieItemVerticalPadding">5dp</dimen>
     
+    <dimen name="text_margin">5dp</dimen>
+    
     <dimen name="thumbnail_width">68dp</dimen>
     <dimen name="thumbnail_height">100dp</dimen>
     

@@ -8,13 +8,25 @@ package com.jspreddy.midterm;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.widget.TextView;
 
 public class MovieActivity extends Activity {
 
+	int id;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_movie);
+		
+		
+		
+		if (getIntent().getExtras() != null) {
+			id = getIntent().getExtras().getInt("id");
+		}
+		else{id=0;}
+		
+		
 	}
 
 	@Override

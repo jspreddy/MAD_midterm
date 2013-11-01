@@ -42,16 +42,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.support.v4.util.LruCache;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -67,6 +65,8 @@ public class MoviesActivity extends Activity {
 	ListView lvMovies;
 	ProgressDialog pd;
 	
+	ArrayList<RottenMovieObject> movieList;
+	
 	String[] url_box_office={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
 	String[] url_in_theaters={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
 	String[] url_opening={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
@@ -79,7 +79,19 @@ public class MoviesActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_movies);
 		
+		movieList = new ArrayList<RottenMovieObject>();
+		
 		lvMovies = (ListView) findViewById(R.id.lvMovies);
+		lvMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				Intent i = new Intent(MoviesActivity.this,MovieActivity.class);
+				i.putExtra("id", arg1.getId());
+				startActivity(i);
+			}
+			
+		});
 		
 		final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 		final int cacheSize = maxMemory / 8;
@@ -216,24 +228,26 @@ public class MoviesActivity extends Activity {
 		@Override
 		protected ArrayList<RottenMovieObject> doInBackground(String[]... arg) {
 			try {
-				URL url = new URL(arg[0][0]);
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod("GET");
-				con.connect();
-				int statusCode = con.getResponseCode();
-				if (statusCode == HttpURLConnection.HTTP_OK) {
-					BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-					StringBuilder sb = new StringBuilder();
-					String line = reader.readLine();
-					while (line != null) {
-						sb.append(line);
-						line = reader.readLine();
+				ArrayList<RottenMovieObject> tempList = new ArrayList<RottenMovieObject>();
+				for(int i=0;i<arg[0].length;i++){
+					URL url = new URL(arg[0][i]);
+					HttpURLConnection con = (HttpURLConnection) url.openConnection();
+					con.setRequestMethod("GET");
+					con.connect();
+					int statusCode = con.getResponseCode();
+					if (statusCode == HttpURLConnection.HTTP_OK) {
+						BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+						StringBuilder sb = new StringBuilder();
+						String line = reader.readLine();
+						while (line != null) {
+							sb.append(line);
+							line = reader.readLine();
+						}
+						
+						tempList.addAll( RottenUtil.MoviesJSONParser.parseMovies(sb.toString()) );
 					}
-					
-					ArrayList<RottenMovieObject> movielist = RottenUtil.MoviesJSONParser.parseMovies(sb.toString());
-					
-					return movielist;
 				}
+				return tempList;
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -252,6 +266,7 @@ public class MoviesActivity extends Activity {
 			super.onPostExecute(result);
 			pd.dismiss();
 			if(result!=null && result.size() != 0){
+				movieList = result;
 				MoviesAdapter ma = new MoviesAdapter(MoviesActivity.this, result);
 				lvMovies.setAdapter(ma);
 			}
@@ -264,12 +279,12 @@ public class MoviesActivity extends Activity {
 
 	class MoviesAdapter extends ArrayAdapter<RottenMovieObject>{
 		Context context;
-		ArrayList<RottenMovieObject> moviesList;
+		ArrayList<RottenMovieObject> localList;
 		
 		public MoviesAdapter(Context context, ArrayList<RottenMovieObject> moviesList) {
 			super(context, R.layout.movies_list_item, R.id.tvTitle, moviesList);
 			this.context = context;
-			this.moviesList = moviesList;
+			this.localList = moviesList;
 		}
 
 		@Override
@@ -285,12 +300,12 @@ public class MoviesActivity extends Activity {
 			else{
 				holder = (MyViewHolder) row.getTag();
 			}
-			
+			row.setId( Integer.parseInt(localList.get(position).getId()) );
 			holder.ivCritRating.setScaleType(ScaleType.FIT_CENTER);
 			holder.ivAudRating.setScaleType(ScaleType.FIT_CENTER);
 			holder.ivThumbnail.setScaleType(ScaleType.FIT_CENTER);
 			
-			RottenMovieObject item = this.moviesList.get(position);
+			RottenMovieObject item = this.localList.get(position);
 			holder.tvTitle.setText(item.getTitle());
 			holder.tvYear.setText(item.getYear()+"");
 			holder.tvMpaa.setText(item.getMpaa());

@@ -24,4 +24,7 @@
     <string name="title_activity_movie_web">MovieWebActivity</string>
     <string name="title_activity_statistics">StatisticsActivity</string>
 
+    <string name="tvCritics">Critics</string>
+    <string name="tvAudience">Audience</string>
+    
 </resources>
