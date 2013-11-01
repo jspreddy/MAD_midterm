@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/movieItemVerticalPadding"
+    android:paddingLeft="@dimen/movieItemHorizontalPadding"
+    android:paddingRight="@dimen/movieItemHorizontalPadding"
+    android:paddingTop="@dimen/movieItemVerticalPadding"
+     >
+
+    <ImageView
+        android:id="@+id/ivMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/poster_not_found" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.67"
+        android:paddingLeft="@dimen/movieItemHorizontalPadding"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Movie Title"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/tvYear"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.33"
+                android:text="Year"
+                android:gravity="bottom" 
+                />
+
+            <TextView
+                android:id="@+id/tvMpaa"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.66"
+                android:text="mpaa rating"
+                android:gravity="bottom" 
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="right" >
+
+                <ImageView
+                    android:id="@+id/ivCritRating"
+                    android:layout_width="@dimen/rankingImageSize"
+                    android:layout_height="@dimen/rankingImageSize"
+                    android:src="@drawable/notranked" />
+
+                <ImageView
+                    android:id="@+id/ivAudRating"
+                    android:layout_width="@dimen/rankingImageSize"
+                    android:layout_height="@dimen/rankingImageSize"
+                    android:src="@drawable/notranked" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

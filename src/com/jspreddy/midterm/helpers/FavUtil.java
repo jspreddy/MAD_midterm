@@ -52,6 +52,7 @@ public class FavUtil{
 			}
 			if(localName.equals("favorite")){
 				favItemStart = true;
+				fav = new FavoriteObject();
 			}
 		
 			xmlInnerText.setLength(0);

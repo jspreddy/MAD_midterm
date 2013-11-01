@@ -1,11 +1,7 @@
 package com.jspreddy.midterm;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +17,6 @@ import org.xml.sax.SAXException;
 
 import com.jspreddy.midterm.helpers.Config;
 import com.jspreddy.midterm.helpers.Constants;
-import com.jspreddy.midterm.helpers.ErrorObject;
 import com.jspreddy.midterm.helpers.FavApiObject;
 import com.jspreddy.midterm.helpers.FavUtil;
 
@@ -32,14 +27,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -136,9 +129,8 @@ public class MainActivity extends Activity {
 
 		    try {
 		        // Add your data
-		        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
 		        nameValuePairs.add(new BasicNameValuePair("uid", uid));
-		        nameValuePairs.add(new BasicNameValuePair("stringdata", "AndDev is Cool!"));
 		        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 		        // Execute HTTP Post Request
@@ -160,7 +152,6 @@ public class MainActivity extends Activity {
 		
 		protected void onPostExecute(FavApiObject result) {
 			if(result != null){
-				Log.d("DEBUG", result.toString());
 				Toast.makeText(context, result.getError().getMessage(), Toast.LENGTH_SHORT).show();
 			}
 		}
