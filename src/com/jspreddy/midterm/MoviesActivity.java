@@ -30,15 +30,27 @@ import com.jspreddy.midterm.helpers.RottenUtil;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.support.v4.util.LruCache;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MoviesActivity extends Activity {
@@ -54,6 +66,8 @@ public class MoviesActivity extends Activity {
 	String url_opening="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
 	String url_upcoming="http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50";
 	
+	LruCache<String, Bitmap> mMemoryCache;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,6 +75,15 @@ public class MoviesActivity extends Activity {
 		
 		lvMovies = (ListView) findViewById(R.id.lvMovies);
 		
+		final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		final int cacheSize = maxMemory / 8;
+		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@SuppressLint("NewApi")
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+				return bitmap.getByteCount() / 1024;
+			}
+		};
 		
 		context = this.getApplicationContext();
 		SharedPreferences sharedPref = context.getSharedPreferences(Constants.sharedPrefFile,Context.MODE_PRIVATE);
@@ -211,9 +234,128 @@ public class MoviesActivity extends Activity {
 		protected void onPostExecute(ArrayList<RottenMovieObject> result) {
 			super.onPostExecute(result);
 			pd.dismiss();
+			MoviesAdapter ma = new MoviesAdapter(MoviesActivity.this, result);
+			lvMovies.setAdapter(ma);
 		}
 
 	}
 
+	class MoviesAdapter extends ArrayAdapter<RottenMovieObject>{
+		Context context;
+		ArrayList<RottenMovieObject> moviesList;
+		
+		public MoviesAdapter(Context context, ArrayList<RottenMovieObject> moviesList) {
+			super(context, R.layout.movies_list_item, R.id.tvTitle, moviesList);
+			this.context = context;
+			this.moviesList = moviesList;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View row = inflater.inflate(R.layout.movies_list_item, parent, false);
+			
+			ImageView ivThumbnail = (ImageView) row.findViewById(R.id.ivThumbnail);
+			TextView tvTitle = (TextView) row.findViewById(R.id.tvTitle);
+			TextView tvYear = (TextView) row.findViewById(R.id.tvYear);
+			TextView tvMpaa = (TextView) row.findViewById(R.id.tvMpaa);
+			ImageView ivCritRating = (ImageView) row.findViewById(R.id.ivCritRating);
+			ImageView ivAudRating = (ImageView) row.findViewById(R.id.ivAudRating);
+			ivCritRating.setScaleType(ScaleType.CENTER_INSIDE);
+			ivAudRating.setScaleType(ScaleType.CENTER_INSIDE);
+			ivThumbnail.setScaleType(ScaleType.CENTER_INSIDE);
+			
+			RottenMovieObject item = this.moviesList.get(position);
+			tvTitle.setText(item.getTitle());
+			tvYear.setText(item.getYear()+"");
+			tvMpaa.setText(item.getMpaa());
+			
+			new AsyncDownloadImage().execute(new ImageLoad(item.getImg_profile(), ivThumbnail));
+			
+			if(item.getCritics_rating().equals("Fresh")){
+				ivCritRating.setImageResource(R.drawable.fresh);
+			}
+			else if(item.getCritics_rating().equals("Certified Fresh")){
+				ivCritRating.setImageResource(R.drawable.certified_fresh);
+			}
+			else if(item.getCritics_rating().equals("Rotten")){
+				ivCritRating.setImageResource(R.drawable.rotten);
+			}
+			
+			if(item.getAudience_rating().equals("Upright")){
+				ivAudRating.setImageResource(R.drawable.upright);
+			}
+			else if(item.getAudience_rating().equals("Spilled")){
+				ivAudRating.setImageResource(R.drawable.spilled);
+			}
+			
+			return row;
+		}
+		
+		
+	}
+	
+	class ImageLoad{
+		String url="";
+		ImageView iv;
+		public ImageLoad(String url, ImageView iv){
+			this.url = url;
+			this.iv=iv;
+		}
+	}
+	
+	class AsyncDownloadImage extends AsyncTask<ImageLoad,Void,Bitmap>{
+		
+		ImageLoad il;
+		@Override
+		protected Bitmap doInBackground(ImageLoad... params) {
+			il=params[0];
+			URL url;
+			try {
+				Bitmap bmp = getBitmapFromMemCache(il.url);
+				if(bmp == null){
+					url = new URL(il.url);
+					bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+					if(bmp==null){
+						return BitmapFactory.decodeResource(getResources(), R.drawable.poster_not_found);
+					}else{
+						addBitmapToMemoryCache(il.url, bmp);
+						return bmp;
+					}
+				}
+				else{
+					return bmp;
+				}
+				
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return BitmapFactory.decodeResource(getResources(), R.drawable.poster_not_found);
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap img) {
+			super.onPostExecute(img);
+			il.iv.setImageBitmap(img);
+		}
+		
+		
+	}
+	
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (getBitmapFromMemCache(key) == null) {
+			mMemoryCache.put(key, bitmap);
+		}
+	}
+
+	public Bitmap getBitmapFromMemCache(String key) {
+		return mMemoryCache.get(key);
+	}
+	
 	
 }

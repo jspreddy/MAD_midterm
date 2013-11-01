@@ -24,6 +24,24 @@ public class RottenMovieObject {
 	
 	String link_alternate;
 
+	public RottenMovieObject(){
+		this.id="";
+		this.title="";
+		this.year=0;
+		this.mpaa="";
+		this.runtime=0;
+		this.release_date="";
+		this.critics_rating="";
+		this.critics_score=0;
+		this.audience_rating = "";
+		this.audience_score=0;
+		this.img_detailed="";
+		this.img_original="";
+		this.img_profile="";
+		this.img_thumbnail="";
+		this.link_alternate="";
+	}
+	
 	public String getId() {
 		return id;
 	}

@@ -10,9 +10,9 @@
      >
 
     <ImageView
-        android:id="@+id/ivMain"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/ivThumbnail"
+        android:layout_width="@dimen/thumbnail_width"
+        android:layout_height="@dimen/thumbnail_height"
         android:src="@drawable/poster_not_found" />
 
     <LinearLayout
