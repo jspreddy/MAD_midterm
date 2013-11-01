@@ -28,6 +28,8 @@ public class RottenMovieObject {
 	String img_original;
 	
 	String link_alternate;
+	
+	String genres;
 
 	public RottenMovieObject(){
 		this.id="";
@@ -45,6 +47,7 @@ public class RottenMovieObject {
 		this.img_profile="";
 		this.img_thumbnail="";
 		this.link_alternate="";
+		this.genres="";
 	}
 	
 	public String getId() {
@@ -107,6 +110,10 @@ public class RottenMovieObject {
 		return link_alternate;
 	}
 
+	public String getGenres() {
+		return genres;
+	}
+	
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -165,6 +172,15 @@ public class RottenMovieObject {
 
 	public void setLink_alternate(String link_alternate) {
 		this.link_alternate = link_alternate;
+	}
+
+	public void setGenres(String genres) {
+		if(this.genres.equals("")){
+			this.genres += genres;
+		}
+		else{
+			this.genres += ", "+genres;
+		}
 	}
 
 

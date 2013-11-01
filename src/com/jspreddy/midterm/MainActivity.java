@@ -117,6 +117,7 @@ public class MainActivity extends Activity {
 			break;
 		case R.id.settings_Exit:
 				finish();
+				System.exit(0);
 			break;
 		}
 		return false;

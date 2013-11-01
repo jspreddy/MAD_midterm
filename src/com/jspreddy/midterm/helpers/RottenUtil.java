@@ -67,6 +67,19 @@ public class RottenUtil {
 				}
 			}
 			
+			if(!movieJSONObject.isNull("genres")){
+				try{
+					JSONArray array = movieJSONObject.getJSONArray("genres");
+					for(int i=0;i<array.length();i++){
+						movieObj.setGenres(array.getString(i));
+					}
+				}
+				catch(JSONException e){
+					
+				}
+				
+			}
+			
 			if(!movieJSONObject.isNull("mpaa_rating")){
 				try {
 					movieObj.setMpaa(movieJSONObject.getString("mpaa_rating"));

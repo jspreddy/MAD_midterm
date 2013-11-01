@@ -10,7 +10,7 @@
     tools:context=".MovieActivity" >
 
     <TextView
-        android:id="@+id/tvMovieActivityTitle"
+        android:id="@+id/tv_MovieActivity_Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -18,7 +18,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/iv_MovieActivity_Main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/text_margin"
@@ -31,21 +31,21 @@
         android:layout_marginTop="@dimen/text_margin" >
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/tv_MovieActivity_ReleaseDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/tv_MovieActivity_Mpaa"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/tv_MovieActivity_Runtime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content" >
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/tv_MovieActivity_Genre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/text_margin"
@@ -79,7 +79,6 @@
              >
 
             <TextView
-                android:id="@+id/textView5"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -90,14 +89,14 @@
                 android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/textView7"
+                    android:id="@+id/tv_MovieActivity_AudRat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"
                     android:layout_weight="1" />
 
                 <ImageView
-                    android:id="@+id/imageView2"
+                    android:id="@+id/iv_MovieActivity_Aud"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="left"
@@ -116,7 +115,6 @@
              >
 
             <TextView
-                android:id="@+id/textView6"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -127,14 +125,14 @@
                 android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/textView8"
+                    android:id="@+id/tv_MovieActivity_CritRat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right" />
 
                 <ImageView
-                    android:id="@+id/imageView3"
+                    android:id="@+id/iv_MovieActivity_Crit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="left"
@@ -153,21 +151,21 @@
         android:layout_marginTop="@dimen/text_margin" >
 
         <ImageView
-            android:id="@+id/ivMovieBack"
+            android:id="@+id/iv_MovieActivity_Back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/ic_action_back" />
 
         <ImageView
-            android:id="@+id/ivMovieWeb"
+            android:id="@+id/iv_MovieActivity_Web"
             android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_action_web" />
 
         <ImageView
-            android:id="@+id/ivMovieStar"
+            android:id="@+id/iv_MovieActivity_Star"
             android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

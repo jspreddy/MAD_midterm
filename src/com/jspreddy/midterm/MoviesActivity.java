@@ -31,6 +31,7 @@ import com.jspreddy.midterm.helpers.Constants;
 import com.jspreddy.midterm.helpers.FavApiObject;
 import com.jspreddy.midterm.helpers.FavUtil;
 import com.jspreddy.midterm.helpers.FavoriteObject;
+import com.jspreddy.midterm.helpers.ImageLoad;
 import com.jspreddy.midterm.helpers.RottenMovieObject;
 import com.jspreddy.midterm.helpers.RottenUtil;
 
@@ -47,6 +48,7 @@ import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -67,10 +69,10 @@ public class MoviesActivity extends Activity {
 	
 	ArrayList<RottenMovieObject> movieList;
 	
-	String[] url_box_office={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
-	String[] url_in_theaters={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
-	String[] url_opening={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
-	String[] url_upcoming={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=r77k8ra37t6q4hgk9974qm4j&limit=50"};
+	String[] url_box_office={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey="+Constants.API_KEY+"&limit=50"};
+	String[] url_in_theaters={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey="+Constants.API_KEY+"&limit=50"};
+	String[] url_opening={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey="+Constants.API_KEY+"&limit=50"};
+	String[] url_upcoming={"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey="+Constants.API_KEY+"&limit=50"};
 	
 	LruCache<String, Bitmap> mMemoryCache;
 	
@@ -146,8 +148,18 @@ public class MoviesActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.exit_menu, menu);
 		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId())
+		{
+		case R.id.settings_Exit:
+				finish();
+				System.exit(0);
+			break;
+		}
+		return false;
 	}
 	
 	
@@ -353,15 +365,7 @@ public class MoviesActivity extends Activity {
 			ivAudRating = (ImageView) row.findViewById(R.id.ivAudRating);
 		}
 	}
-	
-	class ImageLoad{
-		String url="";
-		ImageView iv;
-		public ImageLoad(String url, ImageView iv){
-			this.url = url;
-			this.iv=iv;
-		}
-	}
+
 	
 	class AsyncDownloadImage extends AsyncTask<ImageLoad,Void,Bitmap>{
 		
@@ -401,8 +405,7 @@ public class MoviesActivity extends Activity {
 			super.onPostExecute(img);
 			il.iv.setImageBitmap(img);
 		}
-		
-		
+
 	}
 	
 	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
